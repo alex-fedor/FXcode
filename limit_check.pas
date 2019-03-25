@@ -54,7 +54,11 @@ close(f_ini);
 
 assign(f2,calendar);{assign(f2,'calendar_20110221-20120217.csv');}
 assign(f,history);{assign(f,'EURUSD_M1_20110221-20120217.csv');}
-assign(f3,'limit_check_' +'tau'+ tau_0_ini + '_d' + week_day_ini + '.csv');
+{assign(f3,'limit_check_' +'tau'+ tau_0_ini + '_d' + week_day_ini + '.csv');}
+if (tau_0<  10)                  then tau_0_ini:='000'+tau_0_ini;
+if (tau_0>= 10) and (tau_0< 100) then tau_0_ini:='00'+tau_0_ini;
+if (tau_0>=100) and (tau_0<1000) then tau_0_ini:='0'+tau_0_ini;
+assign(f3,'d' + week_day_ini + '_t'+ tau_0_ini + '_limit_chk' + '.csv');
 rewrite(f3);
 writeln(f3,'Date,Total,Missed,qV,Operation,START,FINISH,Profit');
 
