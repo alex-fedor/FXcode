@@ -4,7 +4,7 @@ uses crt,strings;
        {z_max=1970;}
 var
 z,z_min,z_max,p,p_min,p_max,l,l_min,l_max:word;
-find,BuyLimit_Active,SellLimit_Active:byte;
+find,BuyLimit_Active,SellLimit_Active,Status_DONE:byte;
 
 k,END_of_time,tau_0:word;
 i,code:integer;
@@ -163,7 +163,7 @@ writeln('SellLimit_Loss = ',SellLimit_Loss:5:5);
 
 
 i:=tau_0;
-BuyLimit_Active:=0; SellLimit_Active:=0;
+BuyLimit_Active:=0; SellLimit_Active:=0; Status_DONE:=0;
 BuyLimit_Floating_PL:=0; SellLimit_Floating_PL:=0;
 repeat
 i:=i+1;
@@ -205,8 +205,8 @@ end;
 
 if SellLimit_Active=1 then
 begin
-if (MinP[i] <= SellLimit_Open) then SellLimit_Floating_PL:=SellLimit_Open - MinP[i] + spread;
-if (MinP[i] >  SellLimit_Open) then SellLimit_Floating_PL:=SellLimit_Open - MaxP[i] + spread;
+if (MinP[i] <= SellLimit_Open) then SellLimit_Floating_PL:=SellLimit_Open - MinP[i] - spread;
+if (MinP[i] >  SellLimit_Open) then SellLimit_Floating_PL:=SellLimit_Open - MaxP[i] - spread;
 {writeln('SellLimit_Floating_PL = ',SellLimit_Floating_PL*10000:3:2);}
 end;
 
@@ -228,7 +228,7 @@ until ((BuyLimit_Open + BuyLimit_Floating_PL >= BuyLimit_Profit ) and (BuyLimit_
 
 if ((BuyLimit_Open + BuyLimit_Floating_PL >= BuyLimit_Profit ) and (BuyLimit_Active=1)) then
 begin
-BuyLimit_Profit_Time:=i;
+BuyLimit_Profit_Time:=i; BuyLimit_Active:=0; Status_DONE:=1;
 str(BuyLimit_Profit_Time,BuyLimit_Profit_Time_R);
 Operation_type_R:='BUY';
 str(Profit*10000:3:1,BuyLimit_Profit_R);
@@ -239,7 +239,7 @@ end;
 
 if ((BuyLimit_Floating_PL <= BuyLimit_Loss - BuyLimit_Open) and (BuyLimit_Active=1)) then
 begin
-BuyLimit_Loss_Time:=i;
+BuyLimit_Loss_Time:=i; BuyLimit_Active:=0; Status_DONE:=1;
 str(BuyLimit_Loss_Time,BuyLimit_Loss_Time_R);
 Operation_type_R:='BUY';
 str((BuyLimit_Loss-BuyLimit_Open)*10000:3:1,BuyLimit_Loss_R);
@@ -251,7 +251,7 @@ end;
 if (i=END_of_Time) and (BuyLimit_Active=1) and
 (BuyLimit_Open + BuyLimit_Floating_PL < BuyLimit_Profit ) and (BuyLimit_Floating_PL > BuyLimit_Loss - BuyLimit_Open) then
 begin
-BuyLimit_Loss_Time:=i;
+BuyLimit_Loss_Time:=i; BuyLimit_Active:=0; Status_DONE:=1;
 str(BuyLimit_Loss_Time,BuyLimit_Loss_Time_R);
 Operation_type_R:='BUY';
 str((BuyLimit_Floating_PL)*10000:3:1,BuyLimit_Loss_R);
@@ -264,7 +264,7 @@ end;
 
 
 
-if (i=END_of_Time) and (BuyLimit_Active=0) and (SellLimit_Active=0) then
+if (i=END_of_Time) and (BuyLimit_Active=0) and (SellLimit_Active=0) and (Status_DONE=0) then
 begin;
 Operation_type_R:='UNSPECIFIED';
 Report:=Concat(Report,',',Operation_type_R,',0,0,0.0');
@@ -278,7 +278,7 @@ end;
 
 if ((SellLimit_Open - SellLimit_Floating_PL <= SellLimit_Profit) and (SellLimit_Active=1)) then
 begin
-SellLimit_Profit_Time:=i;
+SellLimit_Profit_Time:=i; SellLimit_Active:=0; Status_DONE:=1;
 str(SellLimit_Profit_Time,SellLimit_Profit_Time_R);
 Operation_type_R:='SELL';
 str(Profit*10000:3:1,SellLimit_Profit_R);
@@ -290,7 +290,7 @@ end;
 if ((SellLimit_Floating_PL <= SellLimit_Open - SellLimit_Loss) and (SellLimit_Active=1)) then
 begin
 {BuyLimit_Active:=0;}
-SellLimit_Loss_Time:=i;
+SellLimit_Loss_Time:=i; SellLimit_Active:=0; Status_DONE:=1;
 str(SellLimit_Loss_Time,SellLimit_Loss_Time_R);
 Operation_type_R:='SELL';
 str((SellLimit_Open-SellLimit_Loss)*10000:3:1,SellLimit_Loss_R);
@@ -302,7 +302,7 @@ end;
 if (i=END_of_Time) and (SellLimit_Active=1) and
 (SellLimit_Open - SellLimit_Floating_PL > SellLimit_Profit) and (SellLimit_Floating_PL > SellLimit_Open - SellLimit_Loss) then
 begin
-SellLimit_Loss_Time:=i;
+SellLimit_Loss_Time:=i; SellLimit_Active:=0; Status_DONE:=1;
 str(SellLimit_Loss_Time,SellLimit_Loss_Time_R);
 Operation_type_R:='SELL';
 str((SellLimit_Floating_PL)*10000:3:1,SellLimit_Loss_R);
