@@ -318,7 +318,7 @@ close(f2);
 {
 clrscr;}
 
-writeln(f3,Profit*10000:5:1,' ',Loss*10000:5:1,' ',Volatility:9:5,'  ',Total_Profit/(Profit*10000*52):9:3,' || ',p/p_max*100:7:2,{' ',l/l_max*100:7:2,}' ',z/z_max*100:7:2);
+writeln(f3,Profit*10000:5:1,' ',Loss*10000:5:1,' ',Volatility:9:5,'  ',Total_Profit/(Profit*10000*52):9:3{,' || ',p/p_max*100:7:2,' ',l/l_max*100:7:2,' ',z/z_max*100:7:2});
 end;{Current Volatility}
 z:=z+1;
 
