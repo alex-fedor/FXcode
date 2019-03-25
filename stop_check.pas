@@ -165,6 +165,9 @@ BuyStop_Active_Time:=i;
 {writeln;
 writeln('BuyStop activated at ',BuyStop_Active_Time);}
 str(BuyStop_Active_Time,BuyStop_Active_Time_R);
+if (BuyStop_Active_Time<10 ) then BuyStop_Active_Time_R:='   '+BuyStop_Active_Time_R;
+if (BuyStop_Active_Time>=10 ) and (BuyStop_Active_Time<100) then BuyStop_Active_Time_R:='  '+BuyStop_Active_Time_R;
+if (BuyStop_Active_Time>=100) and (BuyStop_Active_Time<1000) then BuyStop_Active_Time_R:=' '+BuyStop_Active_Time_R;
 {Report:=Concat(Report,',',BuyStop_active_Time_R);}
 {writeln(Report);}
 end;
@@ -188,6 +191,9 @@ SellStop_Active_Time:=i;
 {writeln;
 writeln('SellStop activated at ',SellStop_Active_Time);}
 str(SellStop_Active_Time,SellStop_Active_Time_R);
+if (SellStop_Active_Time<10 ) then SellStop_Active_Time_R:='   '+SellStop_Active_Time_R;
+if (SellStop_Active_Time>=10 ) and (SellStop_Active_Time<100) then SellStop_Active_Time_R:='  '+SellStop_Active_Time_R;
+if (SellStop_Active_Time>=100) and (SellStop_Active_Time<1000) then SellStop_Active_Time_R:=' '+SellStop_Active_Time_R;
 {Report:=Concat(Report,',',SellStop_active_Time_R);}
 {writeln(Report);}
 end;
@@ -219,7 +225,10 @@ if ((BuyStop_Open + BuyStop_Floating_PL >= BuyStop_Profit ) and (BuyStop_Active=
 begin
 BuyStop_Profit_Time:=i; BuyStop_Active:=0; Status_DONE:=1;
 str(BuyStop_Profit_Time,BuyStop_Profit_Time_R);
-Operation_type_R:='BUY';
+if (BuyStop_Profit_Time<10 ) then BuyStop_Profit_Time_R:='   '+BuyStop_Profit_Time_R;
+if (BuyStop_Profit_Time>=10 ) and (BuyStop_Profit_Time<100) then BuyStop_Profit_Time_R:='  '+BuyStop_Profit_Time_R;
+if (BuyStop_Profit_Time>=100) and (BuyStop_Profit_Time<1000) then BuyStop_Profit_Time_R:=' '+BuyStop_Profit_Time_R;
+Operation_type_R:='BUYY';
 str(Profit*10000:3:1,BuyStop_Profit_R);
 Daily_Profit:=Profit*10000;
 Report:=Concat(Report,',',Operation_type_R,',',BuyStop_Active_Time_R,',',BuyStop_Profit_Time_R,',',BuyStop_Profit_R);
@@ -230,7 +239,10 @@ if ((BuyStop_Floating_PL <= BuyStop_Loss - BuyStop_Open) and (BuyStop_Active=1))
 begin
 BuyStop_Loss_Time:=i; BuyStop_Active:=0; Status_DONE:=1;
 str(BuyStop_Loss_Time,BuyStop_Loss_Time_R);
-Operation_type_R:='BUY';
+if (BuyStop_Loss_Time<10 ) then BuyStop_Loss_Time_R:='   '+BuyStop_Loss_Time_R;
+if (BuyStop_Loss_Time>=10 ) and (BuyStop_Loss_Time<100) then BuyStop_Loss_Time_R:='  '+BuyStop_Loss_Time_R;
+if (BuyStop_Loss_Time>=100) and (BuyStop_Loss_Time<1000) then BuyStop_Loss_Time_R:=' '+BuyStop_Loss_Time_R;
+Operation_type_R:='BUYY';
 str((BuyStop_Loss-BuyStop_Open)*10000:3:1,BuyStop_Loss_R);
 Daily_profit:=(BuyStop_Loss-BuyStop_Open)*10000;
 Report:=Concat(Report,',',Operation_type_R,',',BuyStop_Active_Time_R,',',BuyStop_Loss_Time_R,',',BuyStop_Loss_R);
@@ -242,7 +254,7 @@ if (i=END_of_Time) and (BuyStop_Active=1) and
 begin
 BuyStop_Loss_Time:=i; BuyStop_Active:=0; Status_DONE:=1;
 str(BuyStop_Loss_Time,BuyStop_Loss_Time_R);
-Operation_type_R:='BUY';
+Operation_type_R:='BUYY';
 str((BuyStop_Floating_PL)*10000:3:1,BuyStop_Loss_R);
 Daily_profit:=(BuyStop_Floating_PL)*10000;
 Report:=Concat(Report,',',Operation_type_R,',',BuyStop_Active_Time_R,',',BuyStop_Loss_Time_R,',',BuyStop_Loss_R);
@@ -255,8 +267,8 @@ end;
 
 if (i=END_of_Time) and (BuyStop_Active=0) and (SellStop_Active=0) and (Status_DONE=0) then
 begin;
-Operation_type_R:='UNSPECIFIED';
-Report:=Concat(Report,',',Operation_type_R,',0,0,0.0');
+Operation_type_R:='UNSP';
+Report:=Concat(Report,',',Operation_type_R,',----,----,0.0');
 Daily_Profit:=0;
 {writeln(Report);}
 end;
@@ -269,6 +281,9 @@ if ((SellStop_Open - SellStop_Floating_PL <= SellStop_Profit) and (SellStop_Acti
 begin
 SellStop_Profit_Time:=i; SellStop_Active:=0; Status_DONE:=1;
 str(SellStop_Profit_Time,SellStop_Profit_Time_R);
+if (SellStop_Profit_Time<10 ) then SellStop_Profit_Time_R:='   '+SellStop_Profit_Time_R;
+if (SellStop_Profit_Time>=10 ) and (SellStop_Profit_Time<100) then SellStop_Profit_Time_R:='  '+SellStop_Profit_Time_R;
+if (SellStop_Profit_Time>=100) and (SellStop_Profit_Time<1000) then SellStop_Profit_Time_R:=' '+SellStop_Profit_Time_R;
 Operation_type_R:='SELL';
 str(Profit*10000:3:1,SellStop_Profit_R);
 Daily_Profit:=Profit*10000;
@@ -281,6 +296,9 @@ begin
 {BuyStop_Active:=0;}
 SellStop_Loss_Time:=i; SellStop_Active:=0; Status_DONE:=1;
 str(SellStop_Loss_Time,SellStop_Loss_Time_R);
+if (SellStop_Loss_Time<10 ) then SellStop_Loss_Time_R:='   '+SellStop_Loss_Time_R;
+if (SellStop_Loss_Time>=10 ) and (SellStop_Loss_Time<100) then SellStop_Loss_Time_R:='  '+SellStop_Loss_Time_R;
+if (SellStop_Loss_Time>=100) and (SellStop_Loss_Time<1000) then SellStop_Loss_Time_R:=' '+SellStop_Loss_Time_R;
 Operation_type_R:='SELL';
 str((SellStop_Open-SellStop_Loss)*10000:3:1,SellStop_Loss_R);
 Daily_Profit:=(SellStop_Open-SellStop_Loss)*10000;
