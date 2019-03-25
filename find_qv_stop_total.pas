@@ -1,6 +1,6 @@
 program find_qV_stop_total; {for BuyStop and SellStop}
 uses crt,strings;
-const spread=0.0003;
+{const spread=0.0003;}
        {z_max=1970;}
 var
 z,z_min,z_max,p,p_min,p_max,{l,}l_min,l_max:word;
@@ -9,7 +9,7 @@ find,BuyStop_Active,SellStop_Active:byte;
 k,END_of_time:word;
 i,code:integer;
 
-Day,S,week_day,Date,PositionX,week_day_ini,Profit_ini,Loss_ini,calendar,history,z_min_ini,z_max_ini,p_min_ini,p_max_ini,l_min_ini,l_max_ini:string;
+Day,S,week_day,Date,PositionX,week_day_ini,Profit_ini,Loss_ini,calendar,history,z_min_ini,z_max_ini,p_min_ini,p_max_ini,l_min_ini,l_max_ini,spread_ini:string;
 OpenP,MaxP,MinP,CloseP,VolumeP:array[0..1439]of real;
 
  BuyStop_Open, BuyStop_Profit, BuyStop_Loss:real;
@@ -28,7 +28,7 @@ SellStop_Active_Time_R,SellStop_Profit_time_R,SellStop_Loss_Time_R:string;
 
 Report,Operation_type_R:string;
 
-q_Volat,Volatility,Profit,Loss:real;
+q_Volat,Volatility,Profit,Loss,spread:real;
 
 BuyStop_Floating_PL,SellStop_Floating_PL:real;
 
@@ -41,6 +41,7 @@ BEGIN
 clrscr;
 assign(f_ini,'ini');
 reset(f_ini);
+readln(f_ini,spread_ini);      spread_ini:=Copy(spread_ini,14,Length(spread_ini));         val(spread_ini,spread,code);
 readln(f_ini,calendar);          calendar:=Copy(calendar,14,Length(calendar));
 readln(f_ini,history);            history:=Copy( history,14,Length( history));
 readln(f_ini,week_day_ini);  week_day_ini:=Copy(week_day_ini,14,14);
