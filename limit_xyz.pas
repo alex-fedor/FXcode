@@ -9,7 +9,7 @@ find,BuyLimit_Active,SellLimit_Active,Status_DONE:byte;
 k,END_of_time,tau_0:word;
 i,code:integer;
 
-Day,S,week_day,Date,PositionX,week_day_ini,Profit_ini,Loss_ini,calendar,history,z_min_ini,z_max_ini,p_min_ini,p_max_ini,l_min_ini,l_max_ini,spread_ini,tau_0_ini:string;
+Day,S,week_day,Date,PositionX,week_day_ini,Profit_ini,Loss_ini,calendar,history,z_min_ini,z_max_ini,p_min_ini,p_max_ini,l_min_ini,l_max_ini,spread_ini,tau_0_ini,week:string;
 OpenP,MaxP,MinP,CloseP,VolumeP:array[0..1439]of real;
 
  BuyLimit_Open, BuyLimit_Profit, BuyLimit_Loss:real;
@@ -43,7 +43,7 @@ assign(f_ini,'ini');
 reset(f_ini);
 readln(f_ini,spread_ini);      spread_ini:=Copy(spread_ini,14,Length(spread_ini));         val(spread_ini,spread,code);
 readln(f_ini,tau_0_ini);        tau_0_ini:=Copy(tau_0_ini,14,Length(tau_0_ini));           val(tau_0_ini,tau_0,code);
-readln(f_ini,calendar);          calendar:=Copy(calendar,14,Length(calendar));
+readln(f_ini,calendar);          calendar:=Copy(calendar,14,Length(calendar));             week:=Copy(calendar,29,3);
 readln(f_ini,history);            history:=Copy( history,14,Length( history));
 readln(f_ini,week_day_ini);  week_day_ini:=Copy(week_day_ini,14,14);
 {readln(f_ini,coef_ini);          coef_ini:=Copy(coef_ini,14,Length(coef_ini));     val(coef_ini,Coef,code);}
@@ -64,7 +64,7 @@ assign(f,history);{assign(f,'EURUSD_M1_20110221-20120217.csv');}
 if (tau_0<  10)                  then tau_0_ini:='000'+tau_0_ini;
 if (tau_0>= 10) and (tau_0< 100) then tau_0_ini:='00'+tau_0_ini;
 if (tau_0>=100) and (tau_0<1000) then tau_0_ini:='0'+tau_0_ini;
-assign(f3,'d' + week_day_ini + '_t'+ tau_0_ini + '_limit_xyz' + '.csv');
+assign(f3,'d' + week_day_ini + '_t'+ tau_0_ini + '_limit_xyz_{' + week + '}.csv');
 rewrite(f3);
 
 
