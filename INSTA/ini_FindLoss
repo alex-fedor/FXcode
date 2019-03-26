@@ -1,0 +1,16 @@
+spread.....::0.0003
+tau_0......::127
+tau_X......::807
+calendar...::/home/fedor/FX/00_c/w/c_y13_w28.csv
+history_0..::/home/fedor/FX/00_c/euus_d0.csv
+week_day...::3
+profit.....::0.0
+loss.......::0.0
+qV.........::0.0
+z_min......::200
+z_max......::204
+p_min......::30
+p_max......::30
+l_min......::600
+l_max......::600
+TPcL.......::0.702

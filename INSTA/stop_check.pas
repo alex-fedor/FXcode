@@ -6,10 +6,10 @@ var
 z:word;
 find,BuyStop_Active,SellStop_Active,Status_DONE:byte;
 
-k,END_of_time,tau_0:word;
+k,END_of_time,tau_0,tau_X:word;
 i,code:integer;
 
-Day,S,week_day,Date,PositionX,week_day_ini,Profit_ini,Loss_ini,qv_ini,calendar,history,spread_ini,tau_0_ini,week:string;
+Day,S,week_day,Date,PositionX,week_day_ini,Profit_ini,Loss_ini,qv_ini,calendar,history,spread_ini,tau_0_ini,tau_X_ini,week:string;
 OpenP,MaxP,MinP,CloseP,VolumeP:array[0..1439]of real;
 
  BuyStop_Open, BuyStop_Profit, BuyStop_Loss:real;
@@ -43,6 +43,7 @@ assign(f_ini,'ini');
 reset(f_ini);
 readln(f_ini,spread_ini);      spread_ini:=Copy(spread_ini,14,Length(spread_ini));         val(spread_ini,spread,code);
 readln(f_ini,tau_0_ini);        tau_0_ini:=Copy(tau_0_ini,14,Length(tau_0_ini));           val(tau_0_ini,tau_0,code);
+readln(f_ini,tau_X_ini);        tau_X_ini:=Copy(tau_X_ini,14,Length(tau_X_ini));           val(tau_X_ini,tau_X,code);
 readln(f_ini,calendar);          calendar:=Copy(calendar,14,Length(calendar));             week:=Copy(calendar,29,3);
 readln(f_ini,history);            history:=Copy( history,14,Length( history));
 readln(f_ini,week_day_ini);  week_day_ini:=Copy(week_day_ini,14,14);
@@ -58,7 +59,10 @@ assign(f,history);{assign(f,'EURUSD_M1_20110221-20120217.csv');}
 if (tau_0<  10)                  then tau_0_ini:='000'+tau_0_ini;
 if (tau_0>= 10) and (tau_0< 100) then tau_0_ini:='00'+tau_0_ini;
 if (tau_0>=100) and (tau_0<1000) then tau_0_ini:='0'+tau_0_ini;
-assign(f3,'d' + week_day_ini + '_t'+ tau_0_ini + '_S' + '_p' + Profit_ini + '_z' + qv_ini + '_{' + week + '}.csv');
+if (tau_X<  10)                  then tau_X_ini:='000'+tau_X_ini;
+if (tau_X>= 10) and (tau_X< 100) then tau_X_ini:='00'+tau_X_ini;
+if (tau_X>=100) and (tau_X<1000) then tau_X_ini:='0'+tau_X_ini;
+assign(f3,'d' + week_day_ini + 'S' + '_['+ tau_0_ini +'^' + tau_X_ini +']_p' + Profit_ini + '_z' + qv_ini + '_{' + week + '}.csv');
 rewrite(f3);
 writeln(f3,'Date,Total,Missed,qV,Operation,START,FINISH,Profit');
 
@@ -128,7 +132,8 @@ Report:=Concat(S,',',found_entries,',',missed_entries);
 {writeln(Report);}
 {find day and creation of quotes DB}
 
-
+if (END_of_time<1439) and (tau_X>END_of_time) then tau_X:=END_of_time;
+END_of_time:=tau_X;
 q_Volat:=Volatility;
 
 BuyStop_Open:=OpenP[tau_0] + q_Volat + spread;
