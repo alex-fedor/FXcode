@@ -3,7 +3,7 @@ uses crt,strings;
 {const spread=0.0003;}
        {z_max=1970;}
 var
-z,z_min,z_max,p,p_min,p_max,l,l_min,l_max:word;
+z,z_min,z_max,p,p_min,p_max,l,l_min,l_max,z_qv:word;
 find,BuyLimit_Active,SellLimit_Active,Status_DONE:byte;
 
 k,END_of_time,tau_0:word;
@@ -65,9 +65,11 @@ assign(f,history);{assign(f,'EURUSD_M1_20110221-20120217.csv');}
 if (tau_0<  10)                  then tau_0_ini:='000'+tau_0_ini;
 if (tau_0>= 10) and (tau_0< 100) then tau_0_ini:='00'+tau_0_ini;
 if (tau_0>=100) and (tau_0<1000) then tau_0_ini:='0'+tau_0_ini;
-assign(f3,'d' + week_day_ini + '_t'+ tau_0_ini + '_limit_FindLoss_{' + week + '}.csv');
+assign(f3,'d' + week_day_ini + '_t'+ tau_0_ini + '_L_FindLoss_{' + week + '}.csv');
 rewrite(f3);
 
+for z_qv:=z_min to z_max do
+begin{z_qv}
 
 for p:=p_min to p_max do
 begin
@@ -79,7 +81,7 @@ Loss_interval:=Loss-l_min*0.00001;
 repeat
 begin
 
-for z:=z_min to z_max do
+for z:=z_qv to z_qv do
 begin
 append(f3);
 Total_profit:=0;
@@ -363,6 +365,9 @@ writeln(f3,Profit*10000:5:1,' ',Loss_min*10000:5:1,' ',Volatility:9:5);
 
 end;
 p:=p+1;
+
+end;{z_qv}
+z_qv:=z_qv+1;
 
 close(f3);
 
