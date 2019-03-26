@@ -1,15 +1,15 @@
-program find_qV_limit_total; {for BuyLimit and SellLimit}
+program limit_CRC; {for BuyLimit and SellLimit}
 uses crt,strings;
 {const spread=0.0003;}
        {z_max=1970;}
 var
-z,z_min,z_max,p,p_min,p_max,{l,}l_min,l_max:word;
-find,BuyLimit_Active,SellLimit_Active:byte;
+z,z_min,z_max,p,p_min,p_max,l,l_min,l_max:word;
+find,BuyLimit_Active,SellLimit_Active,Status_DONE:byte;
 
 k,END_of_time,tau_0:word;
 i,code:integer;
 
-Day,S,week_day,Date,PositionX,week_day_ini,Profit_ini,Loss_ini,calendar,history,z_min_ini,z_max_ini,p_min_ini,p_max_ini,l_min_ini,l_max_ini,spread_ini,tau_0_ini:string;
+Day,S,week_day,Date,PositionX,week_day_ini,Profit_ini,Loss_ini,calendar,history,z_min_ini,z_max_ini,p_min_ini,p_max_ini,l_min_ini,l_max_ini,spread_ini,tau_0_ini,week:string;
 OpenP,MaxP,MinP,CloseP,VolumeP:array[0..1439]of real;
 
  BuyLimit_Open, BuyLimit_Profit, BuyLimit_Loss:real;
@@ -43,7 +43,7 @@ assign(f_ini,'ini');
 reset(f_ini);
 readln(f_ini,spread_ini);      spread_ini:=Copy(spread_ini,14,Length(spread_ini));         val(spread_ini,spread,code);
 readln(f_ini,tau_0_ini);        tau_0_ini:=Copy(tau_0_ini,14,Length(tau_0_ini));           val(tau_0_ini,tau_0,code);
-readln(f_ini,calendar);          calendar:=Copy(calendar,14,Length(calendar));
+readln(f_ini,calendar);          calendar:=Copy(calendar,14,Length(calendar));             week:=Copy(calendar,32,3);
 readln(f_ini,history);            history:=Copy( history,14,Length( history));
 readln(f_ini,week_day_ini);  week_day_ini:=Copy(week_day_ini,14,14);
 {readln(f_ini,coef_ini);          coef_ini:=Copy(coef_ini,14,Length(coef_ini));     val(coef_ini,Coef,code);}
@@ -60,14 +60,22 @@ close(f_ini);
 
 assign(f2,calendar);{assign(f2,'calendar_20110221-20120217.csv');}
 assign(f,history);{assign(f,'EURUSD_M1_20110221-20120217.csv');}
-assign(f3,'limit_total_' +'tau'+ tau_0_ini + '_d' + week_day_ini + '.csv');
+{assign(f3,'limit_xyz_' +'tau'+ tau_0_ini + '_d' + week_day_ini + '.csv');}
+if (tau_0<  10)                  then tau_0_ini:='000'+tau_0_ini;
+if (tau_0>= 10) and (tau_0< 100) then tau_0_ini:='00'+tau_0_ini;
+if (tau_0>=100) and (tau_0<1000) then tau_0_ini:='0'+tau_0_ini;
+assign(f3,'d' + week_day_ini + {'_t'+ tau_0_ini + }'_limit_CRC_{' + week + '}.csv');
 rewrite(f3);
 
 
 for p:=p_min to p_max do
 begin
-Profit:=p*0.0001;
-Loss:=Profit*10;
+Profit:=p*0.00001;
+
+{for l:=l_min to l_max do
+begin
+Loss:=l*0.00001;} Loss:=10;
+
 
 for z:=z_min to z_max do
 begin
@@ -127,17 +135,18 @@ str(1439-END_of_time,missed_entries);
 Report:=Concat(S,',',found_entries,',',missed_entries);
 {writeln(Report);}
 {find day and creation of quotes DB}
-
+repeat
+END_of_Time:=tau_0 + l_max;
 
 q_Volat:=Volatility;
 
 BuyLimit_Open:=OpenP[tau_0] - q_Volat + spread;
 BuyLimit_Profit:=BuyLimit_Open + Profit;
-BuyLimit_Loss:=  BuyLimit_Open - {Profit * Coef}Loss;
+BuyLimit_Loss:=  BuyLimit_Open - Loss;
 
 SellLimit_Open:=OpenP[tau_0] + q_Volat;
 SellLimit_Profit:=SellLimit_Open - Profit;
-SellLimit_Loss:=  SellLimit_Open + {Profit * Coef}Loss;
+SellLimit_Loss:=  SellLimit_Open + Loss;
 
 str(Volatility:5:5,volat_daily);
 Report:=Concat(Report,',',volat_daily);
@@ -159,7 +168,7 @@ writeln('SellLimit_Loss = ',SellLimit_Loss:5:5);
 
 
 i:=tau_0;
-BuyLimit_Active:=0; SellLimit_Active:=0;
+BuyLimit_Active:=0; SellLimit_Active:=0; Status_DONE:=0;
 BuyLimit_Floating_PL:=0; SellLimit_Floating_PL:=0;
 repeat
 i:=i+1;
@@ -201,8 +210,8 @@ end;
 
 if SellLimit_Active=1 then
 begin
-if (MinP[i] <= SellLimit_Open) then SellLimit_Floating_PL:=SellLimit_Open - MinP[i] + spread;
-if (MinP[i] >  SellLimit_Open) then SellLimit_Floating_PL:=SellLimit_Open - MaxP[i] + spread;
+if (MinP[i] <= SellLimit_Open) then SellLimit_Floating_PL:=SellLimit_Open - MinP[i] - spread;
+if (MinP[i] >  SellLimit_Open) then SellLimit_Floating_PL:=SellLimit_Open - MaxP[i] - spread;
 {writeln('SellLimit_Floating_PL = ',SellLimit_Floating_PL*10000:3:2);}
 end;
 
@@ -224,7 +233,7 @@ until ((BuyLimit_Open + BuyLimit_Floating_PL >= BuyLimit_Profit ) and (BuyLimit_
 
 if ((BuyLimit_Open + BuyLimit_Floating_PL >= BuyLimit_Profit ) and (BuyLimit_Active=1)) then
 begin
-BuyLimit_Profit_Time:=i;
+BuyLimit_Profit_Time:=i; BuyLimit_Active:=0; Status_DONE:=1;
 str(BuyLimit_Profit_Time,BuyLimit_Profit_Time_R);
 Operation_type_R:='BUY';
 str(Profit*10000:3:1,BuyLimit_Profit_R);
@@ -235,7 +244,7 @@ end;
 
 if ((BuyLimit_Floating_PL <= BuyLimit_Loss - BuyLimit_Open) and (BuyLimit_Active=1)) then
 begin
-BuyLimit_Loss_Time:=i;
+BuyLimit_Loss_Time:=i; BuyLimit_Active:=0; Status_DONE:=1;
 str(BuyLimit_Loss_Time,BuyLimit_Loss_Time_R);
 Operation_type_R:='BUY';
 str((BuyLimit_Loss-BuyLimit_Open)*10000:3:1,BuyLimit_Loss_R);
@@ -247,7 +256,7 @@ end;
 if (i=END_of_Time) and (BuyLimit_Active=1) and
 (BuyLimit_Open + BuyLimit_Floating_PL < BuyLimit_Profit ) and (BuyLimit_Floating_PL > BuyLimit_Loss - BuyLimit_Open) then
 begin
-BuyLimit_Loss_Time:=i;
+BuyLimit_Loss_Time:=i; BuyLimit_Active:=0; Status_DONE:=1;
 str(BuyLimit_Loss_Time,BuyLimit_Loss_Time_R);
 Operation_type_R:='BUY';
 str((BuyLimit_Floating_PL)*10000:3:1,BuyLimit_Loss_R);
@@ -260,7 +269,7 @@ end;
 
 
 
-if (i=END_of_Time) and (BuyLimit_Active=0) and (SellLimit_Active=0) then
+if (i=END_of_Time) and (BuyLimit_Active=0) and (SellLimit_Active=0) and (Status_DONE=0) then
 begin;
 Operation_type_R:='UNSPECIFIED';
 Report:=Concat(Report,',',Operation_type_R,',0,0,0.0');
@@ -274,7 +283,7 @@ end;
 
 if ((SellLimit_Open - SellLimit_Floating_PL <= SellLimit_Profit) and (SellLimit_Active=1)) then
 begin
-SellLimit_Profit_Time:=i;
+SellLimit_Profit_Time:=i; SellLimit_Active:=0; Status_DONE:=1;
 str(SellLimit_Profit_Time,SellLimit_Profit_Time_R);
 Operation_type_R:='SELL';
 str(Profit*10000:3:1,SellLimit_Profit_R);
@@ -286,7 +295,7 @@ end;
 if ((SellLimit_Floating_PL <= SellLimit_Open - SellLimit_Loss) and (SellLimit_Active=1)) then
 begin
 {BuyLimit_Active:=0;}
-SellLimit_Loss_Time:=i;
+SellLimit_Loss_Time:=i; SellLimit_Active:=0; Status_DONE:=1;
 str(SellLimit_Loss_Time,SellLimit_Loss_Time_R);
 Operation_type_R:='SELL';
 str((SellLimit_Open-SellLimit_Loss)*10000:3:1,SellLimit_Loss_R);
@@ -298,7 +307,7 @@ end;
 if (i=END_of_Time) and (SellLimit_Active=1) and
 (SellLimit_Open - SellLimit_Floating_PL > SellLimit_Profit) and (SellLimit_Floating_PL > SellLimit_Open - SellLimit_Loss) then
 begin
-SellLimit_Loss_Time:=i;
+SellLimit_Loss_Time:=i; SellLimit_Active:=0; Status_DONE:=1;
 str(SellLimit_Loss_Time,SellLimit_Loss_Time_R);
 Operation_type_R:='SELL';
 str((SellLimit_Floating_PL)*10000:3:1,SellLimit_Loss_R);
@@ -306,6 +315,14 @@ Daily_Profit:=(SellLimit_Floating_PL)*10000;
 Report:=Concat(Report,',',Operation_type_R,',',SellLimit_Active_Time_R,',',SellLimit_Loss_Time_R,',',SellLimit_Loss_R);
 {writeln(Report);}
 end;
+
+if ((Daily_profit>=0) and (Daily_profit<Profit*10000)) then Daily_profit:=0;
+if Daily_profit<0 then Daily_profit:=-1;
+if Daily_profit>=Profit*10000 then Daily_profit:=1;
+
+writeln(f3,{Profit*10000:5:1,' ',Loss*10000:5:1,' ',Volatility:9:5,'  ',}Daily_profit:0:0{,' ',tau_0,' ',END_of_Time});
+tau_0:=END_of_Time;
+until (END_of_Time>=1439); tau_0:=0;
 
 end;
 
@@ -318,9 +335,13 @@ close(f2);
 {
 clrscr;}
 
-writeln(f3,Profit*10000:5:1,' ',Loss*10000:5:1,' ',Volatility:9:5,'  ',Total_Profit/(Profit*10000*52):9:3{,' || ',p/p_max*100:7:2,' ',l/l_max*100:7:2,' ',z/z_max*100:7:2});
+{writeln(f3,Profit*10000:5:1,' ',Loss*10000:5:1,' ',Volatility:9:5,'  ',Total_Profit/(Profit*10000*52):9:3,' || ',p/p_max*100:7:2,' ',l/l_max*100:7:2,' ',z/z_max*100:7:2);}
 end;{Current Volatility}
 z:=z+1;
+
+
+{end;
+l:=l+1;}
 
 end;
 p:=p+1;
