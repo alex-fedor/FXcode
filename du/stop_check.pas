@@ -121,6 +121,9 @@ writeln('Number of missed entries = ',1439-END_of_time);
 writeln;}
 str(END_of_time,found_entries);
 str(1439-END_of_time,missed_entries);
+if ((1439-END_of_time)<  10)                               then missed_entries:='   '+missed_entries;
+if ((1439-END_of_time)>= 10) and ((1439-END_of_time)< 100) then missed_entries:='  '+missed_entries;
+if ((1439-END_of_time)>=100) and ((1439-END_of_time)<1000) then missed_entries:=' '+missed_entries;
 Report:=Concat(S,',',found_entries,',',missed_entries);
 {writeln(Report);}
 {find day and creation of quotes DB}
