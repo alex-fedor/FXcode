@@ -1,12 +1,11 @@
 spread.....::0.0003
-tau_0......::0
+tau_0......::180
 calendar...::/home/fedor/FX/00_c/w/c_y12_w01.csv
 history_0..::/home/fedor/FX/00_c/euus_d0.csv
 history_1..::/home/fedor/FX/00_c/euus_d1.csv
 week_day...::1
-profit.....::0.00050
-loss.......::0.00462
-qV.........::0.00252
+profit.....::0.00060
+loss.......::0.09000
+qV.........::0.00195
 ==============================================
-A:  {L}  0.00050/0.00462/0.00252  @c_y12_w01
 
